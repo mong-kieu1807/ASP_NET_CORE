@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TongHop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e8ec973bed7f8dcd7eef42b64d7457997e64418")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+450c19d87d4b97234d18bf652a2148e5ef1e8693")]
 [assembly: System.Reflection.AssemblyProductAttribute("TongHop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TongHop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
