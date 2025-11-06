@@ -28,4 +28,9 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    // Action để giả lập lỗi 500
+    public IActionResult SimulateFatalError()
+    {
+        throw new InvalidOperationException("Đây là một ngoại lệ được cố ý đưa ra để kiểm tra cách xử lý lỗi!!");
+    }
 }

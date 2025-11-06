@@ -1,21 +1,37 @@
+using SportsStore.Domain.Abstract;
+using TongHop.Concrete;
+using TongHop.Configurations;
 var builder = WebApplication.CreateBuilder(args);
+// Đăng ký PagingSettings để có thể inject IOptions<PagingSettings> vào Controller
+builder.Services.Configure<PagingSettings>(builder.Configuration.GetSection("PagingSettings"));
+//Dang ky vong doi scope
+builder.Services.AddScoped<IProductRepository, FakeProductRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+ options.IdleTimeout = TimeSpan.FromMinutes(30);
+ options.Cookie.HttpOnly = true;
+ options.Cookie.IsEssential = true;
+});
 var app = builder.Build();
+
 // Đăng ký Middleware tùy chỉnh đầu tiên trong pipeline
-app.UseMiddleware<SportsStoreWebApp.Middleware.RequestLoggerMiddleware>();
+app.UseMiddleware<TongHop.Middleware.RequestLoggerMiddleware>();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseDeveloperExceptionPage(); // Hiển thị trang lỗi chi tiết với stack trace
 }
-
-app.UseDeveloperExceptionPage();
+else
+{
+    app.UseExceptionHandler("/Home/Error"); // Trang lỗi tùy chỉnh cho Production
+    app.UseHsts(); // HSTS cho Production
+}
 
 app.UseHttpsRedirection();
 
@@ -23,13 +39,35 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    name: "category_page",
+    pattern: "{category}/Page{productPage:int}", // Mẫu URL: {category}(tên danh mục) / Page{productPage} (số trang)
+    defaults: new { Controller = "Product", action = "List" } // Controller và Action mặc định
+);
+app.MapControllerRoute(
+ name: "pagination",
+ pattern: "Page{productPage:int}", // Mẫu URL: Page{productPage}
+ defaults: new { Controller = "Product", action = "List" }
+);
+app.MapControllerRoute(
+ name: "category",
+ pattern: "{category}", // Mẫu URL: {category} (tên danh mục)
+ defaults: new
+ {
+     Controller = "Product",
+     action = "List",
+     productPage
+= 1
+ } // Mặc định là trang 1
+);
+app.MapControllerRoute(
+ name: "default",
+ pattern: "{controller=Product}/{action=List}/{id?}");
 
 app.Run();

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace SportsStoreWebApp.Middleware
+namespace TongHop.Middleware
 {
     public class RequestLoggerMiddleware
     {
