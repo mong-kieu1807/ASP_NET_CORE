@@ -4,8 +4,8 @@ using TongHop.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 // Đăng ký PagingSettings để có thể inject IOptions<PagingSettings> vào Controller
 builder.Services.Configure<PagingSettings>(builder.Configuration.GetSection("PagingSettings"));
-//Dang ky vong doi scope
-builder.Services.AddScoped<IProductRepository, FakeProductRepository>();
+//Dang ky vong doi Singleton - dùng CÙNG 1 instance cho toàn bộ app
+builder.Services.AddSingleton<IProductRepository, FakeProductRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -13,9 +13,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
- options.IdleTimeout = TimeSpan.FromMinutes(30);
- options.Cookie.HttpOnly = true;
- options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 var app = builder.Build();
 

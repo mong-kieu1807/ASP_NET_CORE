@@ -38,7 +38,14 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+        @if (TempData["message"] is string message)
+        {  
+            <div class="alert alert-@(TempData["messageType"] ?? "info") alert-dismissible fade show" role="alert">
+                @message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @RenderBody()
         </main>
     </div>
 

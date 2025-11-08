@@ -5,9 +5,9 @@ using System.Linq;
 using System.Collections.Generic;
 namespace TongHop.Concrete
 {
- public class FakeProductRepository : IProductRepository
- {
-    public IQueryable<Product> Products => new List<Product>
+    public class FakeProductRepository : IProductRepository
+    {
+        private List<Product> products = new List<Product>
     {
         new Product { ProductID = 1, Name = "Bóng đá Adidas",
         Description = "Bóng đá dùng cho mọi loại sân, độ bền cao.", Price =
@@ -30,6 +30,28 @@ namespace TongHop.Concrete
         new Product { ProductID = 7, Name = "Quần short thể thao",
         Description = "Quần short co giãn, thoải mái khi vận động.", Price =
         25.00m, Category = "Quần áo" }
-        }.AsQueryable();
-}
+    };
+
+        public IQueryable<Product> Products => products.AsQueryable();
+        public void SaveProduct(Product product) // <-- Triển khai phương thức
+        {
+            if (product.ProductID == 0) // Nếu là sản phẩm mới (ID=0), gán ID mới
+            {
+                product.ProductID = products.Max(p => p.ProductID) + 1;
+                products.Add(product);
+            }
+            else // Nếu là sản phẩm đã có, cập nhật
+            {
+                Product? existingProduct = products.FirstOrDefault(p =>
+                p.ProductID == product.ProductID);
+                if (existingProduct != null)
+                {
+                    existingProduct.Name = product.Name;
+                    existingProduct.Description = product.Description;
+                    existingProduct.Price = product.Price;
+                    existingProduct.Category = product.Category;
+                }
+            }
+        }
+    }
 }
