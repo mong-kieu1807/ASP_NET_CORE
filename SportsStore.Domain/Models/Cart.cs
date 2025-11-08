@@ -17,6 +17,6 @@ namespace SportsStore.Domain.Models
     Lines.RemoveAll(l => l.Product.ProductID == product.ProductID);
     public virtual void Clear() => Lines.Clear();
     public decimal ComputeTotalValue() =>
-    Lines.Sum(e => e.Product.Price * e.Quantity);
+    Lines.Sum(e => (decimal?)(e.Product.Price * e.Quantity)) ?? 0m;
     }
 }
