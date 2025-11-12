@@ -63,6 +63,9 @@
         }
     </tbody>
  </table>
+ <div class="text-end mb-3" style="margin-bottom: 15px;">
+ <a asp-action="Create" class="btn btn-primary">Thêm sản phẩm mới</a>
+</div>
  @* Phần phân trang *@
  <nav>
     <ul class="pagination justify-content-center">
@@ -83,9 +86,6 @@ else
 {
     <p class="alert alert-info">Không có sản phẩm nào để hiển thị trong danh mục này.</p>
 }
-<div class="text-center">
- <a asp-action="Create" class="btn btn-primary">Thêm sản phẩm mới</a>
-</div>
 <p>
  <a asp-controller="Home" asp-action="Index" class="btn btnsecondary">Về trang chủ</a>
 </p>
