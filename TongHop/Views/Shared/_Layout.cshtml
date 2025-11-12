@@ -31,13 +31,22 @@
                 </div>
             </div>
             <div class="my-2 my-lg-0">
-                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-info" style="width: 150px;">
+                @await Component.InvokeAsync("CartSummary")
+                @* <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-info" style="width: 150px;">
                 <i class="fas fa-shopping-cart"></i> Giỏ hàng
-                </a>
+                </a> *@
             </div>
         </nav>
     </header>
     <div class="container">
+    @if (TempData["message"] is string message)
+    {
+        <div class="alert alert-@(TempData["messageType"] ?? "info")
+            alert-dismissible fade show" role="alert">
+                @message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -46,6 +55,7 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - TongHop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderSection("FooterContent", required: false)
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

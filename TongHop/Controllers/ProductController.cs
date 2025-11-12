@@ -36,6 +36,12 @@ public class ProductController : Controller
         ViewBag.CurrentPage = productPage;
         ViewBag.TotalItems = productsQuery.Count();
         ViewBag.ItemsPerPage = itemsPerPage;
+        // Lấy danh sách tất cả categories duy nhất để hiển thị sidebar
+        ViewBag.Categories = _repository.Products
+            .Select(p => p.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
         //_logger.LogInformation("Trả về {ProductCount} sản phẩm cho trang {Page}. Tổng số sản phẩm: {TotalItems}", products.Count, productPage, ViewBag.TotalItems);
         return View(products);
     }
@@ -169,6 +175,11 @@ public class ProductController : Controller
         ViewBag.CurrentPage = 1;
         ViewBag.TotalItems = filteredProducts.Count();
         ViewBag.ItemsPerPage = _pagingSettings.ItemsPerPage;
+        ViewBag.Categories = _repository.Products
+            .Select(p => p.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
         
         return View("List", filteredProducts.ToList()); // Tái sử dụng ViewList
     }

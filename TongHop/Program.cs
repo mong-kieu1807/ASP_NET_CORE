@@ -7,6 +7,9 @@ builder.Services.Configure<PagingSettings>(builder.Configuration.GetSection("Pag
 //Dang ky vong doi Singleton - dùng CÙNG 1 instance cho toàn bộ app
 builder.Services.AddSingleton<IProductRepository, FakeProductRepository>();
 
+// Đăng ký IHttpContextAccessor để truy cập HttpContext trong ViewComponent
+builder.Services.AddHttpContextAccessor();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

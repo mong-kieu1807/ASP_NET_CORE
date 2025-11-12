@@ -1,22 +1,40 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using TongHop.Models;
+using SportsStore.Domain.Abstract;
 
 namespace TongHop.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IProductRepository _repository;
+    private readonly PagingSettings _pagingSettings; // Khai báo thuộc tính để lưu cấu hình phân trang
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IProductRepository repository, IOptions<PagingSettings> pagingSettings)
     {
         _logger = logger;
+        _repository = repository;
+        _pagingSettings = pagingSettings.Value;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(string? category = null, int productPage = 1)
     {
-        _logger.LogInformation("Đã yêu cầu trang chủ.");
-        return View();
+        _logger.LogInformation("Yêu cầu danh sách sản phẩm. Danh mục: {Category}, Trang: {Page}", category, productPage);
+        int itemsPerPage = _pagingSettings.ItemsPerPage;
+        var productsQuery = _repository.Products
+            .Where(p => category == null || p.Category == category);
+        var products = productsQuery
+            .OrderBy(p => p.ProductID)
+            .Skip((productPage - 1) * itemsPerPage)
+            .Take(itemsPerPage)
+            .ToList();
+        ViewBag.CurrentCategory = category ?? "Tất cả sản phẩm";
+        ViewBag.CurrentPage = productPage;
+        ViewBag.TotalItems = productsQuery.Count();
+        ViewBag.ItemsPerPage = itemsPerPage;
+        return View(products);
     }
     public IActionResult AboutUs()
     {
