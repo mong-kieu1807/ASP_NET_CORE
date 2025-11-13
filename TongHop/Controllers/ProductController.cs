@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options; // Cần thiết để sử dụng IOptions
 using Microsoft.Extensions.Logging; // Cần thiết để sử dụng ILogger
 using TongHop.Configurations;
 using System.Linq;
+using System.Threading.Tasks; // Để dùng async/await
+using Microsoft.EntityFrameworkCore; // Để dùng ToListAsync
 // Áp dụng một route tiền tố cho toàn bộ Controller nếu muốn dùng Attribute Routing mạnh mẽ
 // [Route("san-pham")] // Ví dụ: mọi action sẽ bắt đầu bằng /cua-hang/
 public class ProductController : Controller
@@ -18,23 +20,25 @@ public class ProductController : Controller
         _repository = repository;
         _logger = logger;
         _pagingSettings = pagingSettings.Value;
-    }
+    } 
     // Ví dụ 1: Convention-based Routing (không có [Route] attribute ở đây)
     // Sẽ khớp với /Product/List hoặc /Product (nếu List là action mặc định của ProductController)
-    public IActionResult List(string? category = null, int productPage = 1) // Tham số category để lọc, có thể null
+    public async Task<ViewResult> List(string? category = null, int productPage = 1) // Tham số category để lọc, có thể null
     {
-        _logger.LogInformation("Yêu cầu danh sách sản phẩm. Danh mục: {Category}, Trang: {Page}", category, productPage);
+       _logger.LogInformation("Yêu cầu danh sách sản phẩm. Danh mục: {Category}, Trang: {Page}", category, productPage);
         int itemsPerPage = _pagingSettings.ItemsPerPage;
         var productsQuery = _repository.Products
             .Where(p => category == null || p.Category == category);
-        var products = productsQuery
+        var products = await productsQuery
             .OrderBy(p => p.ProductID)
             .Skip((productPage - 1) * itemsPerPage)
             .Take(itemsPerPage)
-            .ToList();
+            .ToListAsync(); // Thực thi truy vấn
+        var totalItems = await productsQuery.CountAsync(); // Đếm tổng số lượng cho phân trang
+
         ViewBag.CurrentCategory = category ?? "Tất cả sản phẩm";
         ViewBag.CurrentPage = productPage;
-        ViewBag.TotalItems = productsQuery.Count();
+        ViewBag.TotalItems = totalItems;
         ViewBag.ItemsPerPage = itemsPerPage;
         // Lấy danh sách tất cả categories duy nhất để hiển thị sidebar
         ViewBag.Categories = _repository.Products
@@ -80,7 +84,7 @@ public class ProductController : Controller
 
     }
     // Action Edit (GET): Hiển thị form chỉnh sửa sản phẩm
-    public IActionResult Edit(int? productId)
+    public async Task<IActionResult> Edit(int? productId)
     {
         // Kiểm tra productId có giá trị không
         if (productId == null || productId == 0)
@@ -91,8 +95,8 @@ public class ProductController : Controller
         }
 
         // Tìm sản phẩm theo ID
-        Product? product = _repository.Products
-            .FirstOrDefault(p => p.ProductID == productId.Value);
+        Product? product = productId == 0 ? new Product() : await
+        _repository.Products.FirstOrDefaultAsync(p => p.ProductID == productId);
         if (product == null)
         {
             // Nếu không tìm thấy sản phẩm, chuyển hướng về List
@@ -104,12 +108,12 @@ public class ProductController : Controller
     }
     // Action Edit (POST): Xử lý dữ liệu gửi từ form chỉnh sửa
     [HttpPost]
-    public IActionResult Edit(Product product) // Model Binding sẽ tự động điền dữ liệu vào 'product'
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Product product) // Model Binding sẽ tự động điền dữ liệu vào 'product'
     {
         if (ModelState.IsValid) // Kiểm tra xem Model có hợp lệ không
         {
-            _repository.SaveProduct(product); // Lưu sản phẩm (sẽ tạo mới nếu ID = 0, cập nhật nếu ID > 0)
-            _logger.LogInformation("Product '{Sản phẩmName}'(ID: {ProductId}) đã được lưu thành công.", product.Name, product.ProductID);
+            await _repository.SaveProduct(product); // Gọi SaveProduct để thêm (hoặc cập nhật)
             TempData["message"] = $"{product.Name} đã được lưu thành công!"; // Hiển thị thông báo
             return RedirectToAction("List"); // Chuyển hướng về trang danh sách sản phẩm
         }

@@ -3,6 +3,8 @@ using SportsStore.Domain.Abstract;
 using SportsStore.Domain.Models;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 // Giả sử bạn có IProductRepository được tiêm ở đây
 public class AdminController : Controller // Hoặc AdminController
 {
@@ -13,9 +15,27 @@ public class AdminController : Controller // Hoặc AdminController
         _repository = repository;
         _logger = logger;
     }
+    public IActionResult List(string? category = null, int productPage = 1)
+    {
+        var products = _repository.Products.ToList();
+        
+        // Thiết lập ViewBag cho phân trang
+        ViewBag.CurrentCategory = category ?? "Tất cả sản phẩm";
+        ViewBag.CurrentPage = productPage;
+        ViewBag.TotalItems = products.Count;
+        ViewBag.ItemsPerPage = 10; // Hoặc lấy từ PagingSettings
+        ViewBag.Categories = _repository.Products
+            .Select(p => p.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
+        
+        return View("List", products);
+    }
     // Action để hiển thị form tạo/chỉnh sửa sản phẩm
     public IActionResult Edit(int productId = 0)
     {
+        
         Product? product = productId == 0 ? new Product() :
         _repository.Products.FirstOrDefault(p => p.ProductID == productId);
         if (product == null && productId != 0)
@@ -28,15 +48,14 @@ public class AdminController : Controller // Hoặc AdminController
     // Action xử lý POST khi người dùng gửi form
     [HttpPost]
     [ValidateAntiForgeryToken] // Quan trọng cho bảo mật
-    public IActionResult Edit(Product product)
+    public async Task<IActionResult> Edit(Product product)
     {
         if (ModelState.IsValid) // Kiểm tra hợp lệ dựa trên Data Annotations
         {
-            // Logic lưu sản phẩm vào repository (chưa triển khai thực sự)
-            // Ví dụ: _repository.SaveProduct(product);
-            _logger.LogInformation("Dữ liệu sản phẩm cho '{ProductName}' hợp lệ. Sẵn sàng để lưu.", product.Name);
+            await _repository.SaveProduct(product);
+            _logger.LogInformation("Dữ liệu sản phẩm cho '{ProductName}' hợp lệ. Đã lưu thành công.", product.Name);
             TempData["message"] = $"{product.Name} đã được lưu thành công!";
-            return RedirectToAction("List"); // Hoặc Admin Index
+            return RedirectToAction("Index");
         }
         else
         {
@@ -45,5 +64,29 @@ public class AdminController : Controller // Hoặc AdminController
             string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
             return View(product); // Trả về cùng View với Model có lỗi
         }
+    }
+    
+    // Action Create
+    public IActionResult Create()
+    {
+        return View("Edit", new Product());
+    }
+    
+    // Action Delete
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int productId)
+    {
+        Product? deletedProduct = await _repository.DeleteProduct(productId);
+        if (deletedProduct != null)
+        {
+            _logger.LogInformation("Đã xóa sản phẩm '{ProductName}' (ID: {ProductId}).", deletedProduct.Name, deletedProduct.ProductID);
+            TempData["message"] = $"{deletedProduct.Name} đã được xóa thành công!";
+        }
+        else
+        {
+            TempData["message"] = $"Không tìm thấy sản phẩm có ID {productId} để xóa.";
+        }
+        return RedirectToAction("Index");
     }
 }

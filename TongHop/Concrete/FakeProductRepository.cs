@@ -33,7 +33,8 @@ namespace TongHop.Concrete
     };
 
         public IQueryable<Product> Products => products.AsQueryable();
-        public void SaveProduct(Product product) // <-- Triển khai phương thức
+        
+        public Task SaveProduct(Product product) // <-- Triển khai phương thức
         {
             if (product.ProductID == 0) // Nếu là sản phẩm mới (ID=0), gán ID mới
             {
@@ -52,6 +53,17 @@ namespace TongHop.Concrete
                     existingProduct.Category = product.Category;
                 }
             }
+            return Task.CompletedTask;
+        }
+
+        public Task<Product?> DeleteProduct(int productId)
+        {
+            Product? product = products.FirstOrDefault(p => p.ProductID == productId);
+            if (product != null)
+            {
+                products.Remove(product);
+            }
+            return Task.FromResult(product);
         }
     }
 }

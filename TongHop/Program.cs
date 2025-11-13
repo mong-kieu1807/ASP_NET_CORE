@@ -1,11 +1,18 @@
 using SportsStore.Domain.Abstract;
 using TongHop.Concrete;
 using TongHop.Configurations;
+using Microsoft.EntityFrameworkCore;
+using SportsStore.Infrastructure.Data;
+using SportsStore.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SportsStoreConnection")));
+
 // Đăng ký PagingSettings để có thể inject IOptions<PagingSettings> vào Controller
 builder.Services.Configure<PagingSettings>(builder.Configuration.GetSection("PagingSettings"));
-//Dang ky vong doi Singleton - dùng CÙNG 1 instance cho toàn bộ app
-builder.Services.AddSingleton<IProductRepository, FakeProductRepository>();
+builder.Services.AddScoped<IProductRepository, EFProductRepository>(); // Thay thế bằng EFProductRepository
 
 // Đăng ký IHttpContextAccessor để truy cập HttpContext trong ViewComponent
 builder.Services.AddHttpContextAccessor();
