@@ -22,13 +22,15 @@ namespace SportsStore.Domain.Models
         [Column(TypeName = "decimal(18, 2)")] // Kiểu dữ liệu trong DB
         [Display(Name = "Giá")]
         public decimal Price { get; set; }
-        [Required(ErrorMessage = "Vui lòng chỉ định danh mục.")]
         [Display(Name = "Danh mục")]
         public string Category { get; set; } = string.Empty;
         [Url(ErrorMessage = "URL hình ảnh không hợp lệ.")]
         [Display(Name = "URL hình ảnh")]
         public string? ImageUrl { get; set; } // Có thể null
         // Thêm một thuộc tính CategoryId để liên kết với Category Model(sẽ tạo sau)
+        [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn danh mục.")]
+        [Display(Name = "Danh mục")]
         public int CategoryId { get; set; }
         public virtual Category? CategoryRef { get; set; } //Navigation property (nếu có EF Core)
     }
