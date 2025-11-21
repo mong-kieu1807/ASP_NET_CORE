@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SportsStore.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using SportsStore.Infrastructure.Data;
 namespace SportsStore.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121071524_FirstMigration")]
+    partial class FirstMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,9 +93,6 @@ namespace SportsStore.Infrastructure.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsFeatured")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -116,7 +116,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Bóng đá",
                             CategoryId = 1,
                             Description = "Bóng đá dùng cho mọi loại sân, độ bền cao.",
-                            IsFeatured = false,
                             Name = "Bóng đá Adidas",
                             Price = 25.00m
                         },
@@ -126,7 +125,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Quần áo",
                             CategoryId = 2,
                             Description = "Áo đấu chất liệu thoáng khí, thấm hút mồ hôi.",
-                            IsFeatured = false,
                             Name = "Áo đấu đội tuyển A",
                             Price = 49.99m
                         },
@@ -136,7 +134,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Cầu lông",
                             CategoryId = 3,
                             Description = "Vợt nhẹ, cân bằng tốt, phù hợp cho người chơi trung cấp.",
-                            IsFeatured = false,
                             Name = "Vợt cầu lông Yonex",
                             Price = 120.00m
                         },
@@ -146,7 +143,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Giày",
                             CategoryId = 4,
                             Description = "Giày êm ái, hỗ trợ tối đa cho các buổi tập dài.",
-                            IsFeatured = false,
                             Name = "Giày chạy bộ Nike Air",
                             Price = 95.00m
                         },
@@ -156,7 +152,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Bóng chuyền",
                             CategoryId = 5,
                             Description = "Bóng chuyền tiêu chuẩn thi đấu quốc tế.",
-                            IsFeatured = false,
                             Name = "Bóng chuyền Mikasa MVA200",
                             Price = 30.00m
                         },
@@ -166,7 +161,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Bóng đá",
                             CategoryId = 1,
                             Description = "Bóng đá tập luyện chất lượng cao.",
-                            IsFeatured = false,
                             Name = "Bóng đá Nike Strike",
                             Price = 20.00m
                         },
@@ -176,7 +170,6 @@ namespace SportsStore.Infrastructure.Migrations
                             Category = "Quần áo",
                             CategoryId = 2,
                             Description = "Quần short co giãn, thoải mái khi vận động.",
-                            IsFeatured = false,
                             Name = "Quần short thể thao",
                             Price = 25.00m
                         });

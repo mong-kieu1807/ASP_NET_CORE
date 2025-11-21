@@ -33,5 +33,6 @@ namespace SportsStore.Domain.Models
         [Display(Name = "Danh mục")]
         public int CategoryId { get; set; }
         public virtual Category? CategoryRef { get; set; } //Navigation property (nếu có EF Core)
+        public bool IsFeatured { get; set; }
     }
 }
