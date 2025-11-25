@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SportsStore.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 // Giả sử bạn có IProductRepository được tiêm ở đây
+
+[Authorize(Roles = "Admin")]
 public class AdminController : Controller // Hoặc AdminController
 {
     private readonly IProductRepository _repository;
@@ -74,7 +77,7 @@ public class AdminController : Controller // Hoặc AdminController
             await _repository.SaveProduct(product);
             _logger.LogInformation("Dữ liệu sản phẩm cho '{ProductName}' hợp lệ. Đã lưu thành công.", product.Name);
             TempData["message"] = $"{product.Name} đã được lưu thành công!";
-            return RedirectToAction("List");
+            return RedirectToAction("List", "Admin");
         }
         else
         {
@@ -122,6 +125,6 @@ public class AdminController : Controller // Hoặc AdminController
         {
             TempData["message"] = $"Không tìm thấy sản phẩm có ID {productId} để xóa.";
         }
-        return RedirectToAction("List");
+        return RedirectToAction("List", "Admin");
     }
 }

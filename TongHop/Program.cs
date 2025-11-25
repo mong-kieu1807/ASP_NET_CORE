@@ -4,11 +4,16 @@ using TongHop.Configurations;
 using Microsoft.EntityFrameworkCore;
 using SportsStore.Infrastructure.Data;
 using SportsStore.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<SportsStore.Infrastructure.Data.ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SportsStoreConnection")));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<SportsStore.Infrastructure.Data.ApplicationDbContext>();
 
 // Đăng ký PagingSettings để có thể inject IOptions<PagingSettings> vào Controller
 builder.Services.Configure<PagingSettings>(builder.Configuration.GetSection("PagingSettings"));
@@ -19,6 +24,7 @@ builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -28,6 +34,22 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 var app = builder.Build();
+
+// Seed Identity Roles và Admin User khi ứng dụng khởi động
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        // Seed Identity Roles và Admin User
+        await TongHop.Data.AppIdentityDbContextSeed.SeedRolesAndUsers(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred seeding the DB.");
+    }
+}
 
 // Đăng ký Middleware tùy chỉnh đầu tiên trong pipeline
 app.UseMiddleware<TongHop.Middleware.RequestLoggerMiddleware>();
@@ -51,9 +73,13 @@ app.UseRouting();
 
 app.UseSession();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+ app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "category_page",

@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; 
 using SportsStore.Domain.Models;
 
 namespace SportsStore.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -11,8 +12,8 @@ public class ApplicationDbContext : DbContext
     }
 
     // DbSet cho các entity
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = default!;
+    public DbSet<Category> Categories { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
